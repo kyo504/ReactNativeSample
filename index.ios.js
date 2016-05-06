@@ -8,6 +8,7 @@ import React, {
   AppRegistry,
   Component,
   Image,
+  ListView,
   StyleSheet,
   Text,
   View
@@ -30,8 +31,35 @@ var MOCKED_MOVIES_DATA = [
 var REQUEST_URL = 'https://raw.githubusercontent.com/facebook/react-native/master/docs/MoviesExample.json';
 
 class ReactNativeSample extends Component {
-  render() {
-    var movie = MOCKED_MOVIES_DATA[0];
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
+      loaded: false,
+    };
+  }
+
+  // THis function is called only once after the component has been loaded
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData() {
+    // 여기는 뭐하는 거지...
+    fetch(REQUEST_URL)
+      .then((response) => response.json())
+      .then((responseData) => {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(responseData.movies),
+          loaded: true,
+        });
+      })
+      .done();  // Always make sure call this function or any error thrown will get swallowed
+  }
+
+  renderMovie(movie) {
     return (
       <View style={styles.container}>
         <Image 
@@ -43,6 +71,29 @@ class ReactNativeSample extends Component {
           <Text style={styles.year}>{movie.year}</Text>        
         </View>
       </View>
+    );
+  }
+
+  renderLoadingView() {
+    return (
+      <View style={styles.container}>
+        <Text>
+          Loading movies...
+        </Text>
+      </View>
+    )
+  }
+
+  render() {
+    if( !this.state.loaded){
+      return this.renderLoadingView();
+    }
+    return (
+      <ListView
+        dataSource={this.state.dataSource}
+        renderRow={this.renderMovie}
+        style={styles.listView}
+      />
     );
   }
 }
@@ -57,7 +108,7 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     flex: 1,
-    backgroundColor: 'blue'
+//    backgroundColor: 'blue'
   },
   thumbnail: {
     width: 53,
@@ -70,6 +121,10 @@ const styles = StyleSheet.create({
   },
   year: {
     textAlign: 'center'
+  },
+  listView: {
+    paddingTop: 20,
+    backgroundColor: '#F5FCFF',
   }
 });
 

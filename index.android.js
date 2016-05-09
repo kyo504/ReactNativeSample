@@ -1,51 +1,78 @@
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
+ * @flow
  */
 
 import React, {
   AppRegistry,
   Component,
+  Image,
+  ListView,
   StyleSheet,
   Text,
+  Navigator,
   View
 } from 'react-native';
+
+var SearchPage = require('./SearchPage');
+var SearchResults = require('./SearchResults');
+var PropertyView = require('./PropertyView');
 
 class ReactNativeSample extends Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
+      <Navigator
+        style={styles.container}
+        initialRoute={{ name: 'SearchPage', passProps: {} }}
+        renderScene={this.renderScene.bind(this)}
+        configureScene={(route) => {
+          if (route.sceneConfig) {
+            return route.sceneConfig;
+          } 
+          return Navigator.SceneConfigs.FloatFromRight;
+        }}
+      />
     );
+  }
+
+  renderScene(route, navigator) {
+    var routeName = route.name;
+    if (routeName == 'SearchPage') {
+      return (
+        <SearchPage
+          navigator={navigator} {...route.passProps}/>
+      )
+    }
+
+    if (routeName == 'SearchResults') {
+      return (
+        <SearchResults
+          navigator={navigator} {...route.passProps}/>
+      )
+    }
+
+    if (routeName == 'PropertyView') {
+      return (
+        <PropertyView
+          navigator={navigator} {...route.passProps}/>
+      )
+    }
+
+//    return this.noRoute(navigator);
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  text: {
+    color: 'black',
+    backgroundColor: 'white',
+    fontSize: 30,
+    margin: 80
+  }
 });
 
 AppRegistry.registerComponent('ReactNativeSample', () => ReactNativeSample);
